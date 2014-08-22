@@ -8,95 +8,118 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public class ToDoActivity extends ActionBarActivity {
-	
+public class ToDoActivity extends ActionBarActivity implements OnItemClickListener, OnItemLongClickListener, OnTouchListener {
 	List<String> items;
-	ArrayAdapter<String> itemsAdapter;
+	ArrayAdapter<String> itemsAdapter;	
 	ListView lvItems;
 	public final static String TAG = "SIMPLE_TO_DO";
 	public final static String EXTRA_MESSAGE = "com.aligarhwizard.simpletodo.item";
 	static final int UPDATE_ITEM_REQUEST = 1;  // The request code
-	private int listPos;
+	private int listPos;	
+    private GestureDetector gd;
+	
+    class MyGestureDetector extends SimpleOnGestureListener {
+    	@Override
+    	public boolean onDoubleTap(MotionEvent e) {
+    		Intent intent = new Intent(getBaseContext(), EditItemActivity.class);
+    		intent.putExtra(EXTRA_MESSAGE, itemsAdapter.getItem(listPos));
+    		startActivityForResult(intent, UPDATE_ITEM_REQUEST);
+    		return false;
+    	}
+    	
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+    }
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_todo);
-		lvItems = (ListView) findViewById(R.id.lvItems);
 		items = new ArrayList<String>();
+		lvItems = (ListView) findViewById(R.id.lvItems);
+		items = readItems();
 		itemsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, items);
 		lvItems.setAdapter(itemsAdapter);
-		items.add("first item");
-		items.add("second item");
-		setupListViewListener();
-		readItems();
-	}
-	
-	private void setupListViewListener() {
-		lvItems.setOnItemLongClickListener(new OnItemLongClickListener() {
-
-			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0, View aView,
-					int pos, long id) {
-				Intent intent = new Intent(getBaseContext(), EditItemActivity.class);
-				intent.putExtra(EXTRA_MESSAGE, items.get(pos));
-				startActivityForResult(intent, UPDATE_ITEM_REQUEST);
-				listPos = (int) id;
-				return true;
-			}
-
-		});
+		gd = new GestureDetector(this, new MyGestureDetector());
+		lvItems.setOnItemClickListener(this);
+		lvItems.setOnItemLongClickListener(this);
+		lvItems.setOnTouchListener(this);
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == UPDATE_ITEM_REQUEST && resultCode == RESULT_OK) {
-			Log.i(TAG, "Updating data at pos " + listPos);
 			items.set(listPos, data.getStringExtra(EXTRA_MESSAGE));
-			itemsAdapter.notifyDataSetInvalidated();
+			itemsAdapter.notifyDataSetChanged();
 		}
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.simple_to_do, menu);
-		return true;
-	}
 	
+	/*
+	 * This method is called when Add button is pressed
+	 */
 	public void addToDoItem(View v) {
 		EditText item = (EditText) findViewById(R.id.etNewItem);
-		itemsAdapter.add(item.getText().toString());
+		items.add(item.getText().toString());
+		itemsAdapter.notifyDataSetChanged();
 		item.setText("");
+		saveItems();
 	}
 	
-	private void readItems() {
+	private List<String> readItems() {
 		File filesDir = getFilesDir();
 		File todoFile = new File(filesDir, "todo.txt");
+		List<String> storedTasks = new ArrayList<String>();
 		try {
-	    items = new ArrayList<String>(FileUtils.readLines(todoFile));
+	    storedTasks = FileUtils.readLines(todoFile);
+	    return storedTasks;
 		} catch (Exception e) {
 			Log.e(TAG, "Failed while reading file " + todoFile, e);
 		}
+		return storedTasks;
 	}
 	
 	private void saveItems() {
 		File filesDir = getFilesDir();
-		Log.i(TAG, "File dir is " + filesDir);
 		File todoFile = new File(filesDir, "todo.txt");
 		try {
 	    FileUtils.writeLines(todoFile, items);
 		}  catch (Exception e) {
 			Log.e(TAG, "Failed while writing file " + todoFile, e);
 		}
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long rowId) {
+		this.listPos = position;
+	}
+
+	@Override
+	public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int position,
+			long rowId) {
+		// Delete item from the list
+		items.remove(position);
+		itemsAdapter.notifyDataSetChanged();
+		saveItems();
+		return true;
+	}
+
+	@Override
+	public boolean onTouch(View v, MotionEvent event) {
+	    gd.onTouchEvent(event);
+	    return false;
 	}
 }

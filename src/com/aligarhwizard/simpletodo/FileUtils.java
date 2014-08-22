@@ -8,14 +8,11 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
-
 public class FileUtils {
 
 	public static List<String> readLines(File file) throws Exception {
-		BufferedReader reader = null;
+		BufferedReader reader = new BufferedReader(new FileReader(file));
 		List<String> items = new ArrayList<String>();
-		reader = new BufferedReader(new FileReader(file));
 		String line = null;
 		while((line = reader.readLine()) != null) {
 			items.add(line);
@@ -25,10 +22,9 @@ public class FileUtils {
 	}
 
 	public static void writeLines(File file, List<String> items) throws Exception {
-		BufferedWriter writer = null;
-		writer = new BufferedWriter(new FileWriter(file));
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 		for (String item: items) {
-			writer.write(item);
+			writer.write(item + "\n");
 		}
 		writer.close();
 	}
