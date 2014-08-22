@@ -12,16 +12,16 @@ public class EditItemActivity extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edit_item);
-		
+
 		Intent intent = getIntent();
 		String text = intent.getStringExtra(ToDoActivity.EXTRA_MESSAGE);
 		EditText editText = (EditText) findViewById(R.id.editItem);	
 		editText.setText(text);
 		// set the cursor to the end
 		editText.setSelection(text.length());
-		
+
 	}
-	
+
 	public void updateItem(View v) {
 		// set the intent
 		Intent returnIntent = new Intent();

@@ -28,23 +28,23 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 	public final static String EXTRA_MESSAGE = "com.aligarhwizard.simpletodo.item";
 	static final int UPDATE_ITEM_REQUEST = 1;  // The request code
 	private int listPos;	
-    private GestureDetector gd;
-	
-    class MyGestureDetector extends SimpleOnGestureListener {
-    	@Override
-    	public boolean onDoubleTap(MotionEvent e) {
-    		Intent intent = new Intent(getBaseContext(), EditItemActivity.class);
-    		intent.putExtra(EXTRA_MESSAGE, itemsAdapter.getItem(listPos));
-    		startActivityForResult(intent, UPDATE_ITEM_REQUEST);
-    		return false;
-    	}
-    	
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
-    }
-	
+	private GestureDetector gd;
+
+	class MyGestureDetector extends SimpleOnGestureListener {
+		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+			Intent intent = new Intent(getBaseContext(), EditItemActivity.class);
+			intent.putExtra(EXTRA_MESSAGE, itemsAdapter.getItem(listPos));
+			startActivityForResult(intent, UPDATE_ITEM_REQUEST);
+			return false;
+		}
+
+		@Override
+		public boolean onDown(MotionEvent e) {
+			return true;
+		}
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -59,7 +59,7 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 		lvItems.setOnItemLongClickListener(this);
 		lvItems.setOnTouchListener(this);
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == UPDATE_ITEM_REQUEST && resultCode == RESULT_OK) {
@@ -67,7 +67,7 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 			itemsAdapter.notifyDataSetChanged();
 		}
 	}
-	
+
 	/*
 	 * This method is called when Add button is pressed
 	 */
@@ -78,30 +78,30 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 		item.setText("");
 		saveItems();
 	}
-	
+
 	private List<String> readItems() {
 		File filesDir = getFilesDir();
 		File todoFile = new File(filesDir, "todo.txt");
 		List<String> storedTasks = new ArrayList<String>();
 		try {
-	    storedTasks = FileUtils.readLines(todoFile);
-	    return storedTasks;
+			storedTasks = FileUtils.readLines(todoFile);
+			return storedTasks;
 		} catch (Exception e) {
 			Log.e(TAG, "Failed while reading file " + todoFile, e);
 		}
 		return storedTasks;
 	}
-	
+
 	private void saveItems() {
 		File filesDir = getFilesDir();
 		File todoFile = new File(filesDir, "todo.txt");
 		try {
-	    FileUtils.writeLines(todoFile, items);
+			FileUtils.writeLines(todoFile, items);
 		}  catch (Exception e) {
 			Log.e(TAG, "Failed while writing file " + todoFile, e);
 		}
 	}
-	
+
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long rowId) {
 		this.listPos = position;
@@ -119,7 +119,7 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-	    gd.onTouchEvent(event);
-	    return false;
+		gd.onTouchEvent(event);
+		return false;
 	}
 }
