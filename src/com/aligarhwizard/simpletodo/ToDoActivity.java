@@ -65,6 +65,7 @@ public class ToDoActivity extends ActionBarActivity implements OnItemClickListen
 		if (requestCode == UPDATE_ITEM_REQUEST && resultCode == RESULT_OK) {
 			items.set(listPos, data.getStringExtra(EXTRA_MESSAGE));
 			itemsAdapter.notifyDataSetChanged();
+			saveItems();
 		}
 	}
 
